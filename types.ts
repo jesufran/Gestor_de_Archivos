@@ -18,6 +18,8 @@ export interface Folder {
   children: Folder[];
 }
 
+export type FileSyncStatus = 'local' | 'syncing' | 'synced';
+
 export interface Task {
   id: string;
   description: string;
@@ -28,6 +30,8 @@ export interface Task {
   completedAt?: string;
   resultFile?: File;
   resultFileId?: string;
+  resultFileSyncStatus?: FileSyncStatus;
+  resultFileDownloadURL?: string;
   priority: 'alta' | 'media' | 'baja';
   notes?: string;
   reminder?: boolean;
@@ -55,7 +59,11 @@ export interface Document {
   createdAt: string; // Fecha de Recibido
   file?: File;
   fileId?: string;
+  fileSyncStatus?: FileSyncStatus;
+  downloadURL?: string;
   additionalFileIds?: string[];
+  additionalFileSyncStatuses?: FileSyncStatus[];
+  additionalFileDownloadURLs?: string[];
 }
 
 
@@ -66,6 +74,8 @@ export interface OutgoingDocument {
   body: string; // Contenido
   file?: File;
   fileId?: string;
+  fileSyncStatus?: FileSyncStatus;
+  downloadURL?: string;
   fileName?: string; // Crucial for backup/restore
   createdAt: string; // Internal timestamp
   relatedTaskId?: string; // From task completion flow

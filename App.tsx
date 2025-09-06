@@ -122,7 +122,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // To re-enable login, set this to true
-    const LOGIN_ENABLED = false;
+    const LOGIN_ENABLED = true;
 
     if (LOGIN_ENABLED && window.netlifyIdentity) {
       window.netlifyIdentity.on('init', (user) => {

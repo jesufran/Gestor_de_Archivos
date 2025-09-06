@@ -55,3 +55,6 @@ __snapshots__/
 # Archivos generados por esbuild
 bundle.js
 bundle.js.map
+""  
+"# Firebase config file"  
+"src/firebaseConfig.ts" 
