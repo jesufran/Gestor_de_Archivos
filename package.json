@@ -8,8 +8,9 @@
     "build:js": "esbuild index.tsx --bundle --outfile=dist/bundle.js --jsx=automatic --minify",
     "build:static": "node scripts/copy-static.js",
     "build": "npm run build:css && npm run build:js && npm run build:static",
-    "dev:css": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-    "dev": "start cmd.exe /c \"npm run dev:css && exit\" & esbuild index.tsx --bundle --outfile=dist/bundle.js --jsx=automatic --sourcemap --watch",
+    "dev:css": "npx tailwindcss -i ./src/input.css -o ./output.css --watch",
+    "dev:js": "esbuild index.tsx --bundle --outfile=bundle.js --jsx=automatic --sourcemap --watch",
+    "dev": "start cmd.exe /c \"npm run dev:css && exit\" & npm run dev:js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
