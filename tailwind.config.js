@@ -12,8 +12,8 @@ module.exports = {
     extend: {
       colors: {
         'primary': {
-          'light': 'hsl(243 89% 60%)', /* Indigo 600 */
-          'dark': 'hsl(236 89% 77%)' /* Indigo 400 */
+          'light': 'hsl(var(--color-primary-light))',
+          'dark': 'hsl(var(--color-primary-dark))'
         },
         'secondary': {
           'light': '#f0f9ff',
