@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+// Archivos estáticos a copiar
 const files = [
   'index.html',
   'manifest.json',
@@ -9,6 +10,7 @@ const files = [
   'icon-512x512.png'
 ];
 
+// Carpeta de destino
 const distDir = path.join(__dirname, '../dist');
 
 // Crear carpeta dist si no existe
@@ -16,11 +18,16 @@ if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Copiar archivos
+// Función para copiar archivos
 files.forEach(file => {
   const src = path.join(__dirname, `../${file}`);
   const dest = path.join(distDir, file);
-  
+
+  if (!fs.existsSync(src)) {
+    console.warn(`⚠ Advertencia: archivo no encontrado ${file}`);
+    return;
+  }
+
   try {
     fs.copyFileSync(src, dest);
     console.log(`✓ Copiado: ${file} -> dist/${file}`);
@@ -29,3 +36,5 @@ files.forEach(file => {
     process.exit(1);
   }
 });
+
+console.log('✅ Todos los archivos estáticos se copiaron correctamente.');

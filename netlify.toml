@@ -6,8 +6,12 @@
   # Directorio donde se encuentran tus funciones serverless
   functions = "netlify/functions"
   
-  # Directorio que Netlify publicará. Debe coincidir con la salida del build.
+  # Directorio que Netlify publicará. Debe coincidir con la salida del build
   publish = "dist"
+
+# Forzar versión de Node compatible con tu proyecto
+[build.environment]
+  NODE_VERSION = "20"
 
 # Regla de redirección esencial para Aplicaciones de Página Única (SPA)
 [[redirects]]
