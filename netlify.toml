@@ -1,0 +1,21 @@
+# Configuración de construcción del sitio
+[build]
+  # Comando que Netlify ejecutará para construir tu aplicación
+  command = "npm run build"
+  
+  # Directorio donde se encuentran tus funciones serverless
+  functions = "netlify/functions"
+  
+  # Directorio que Netlify publicará. Debe coincidir con la salida del build.
+  publish = "dist"
+
+# Regla de redirección esencial para Aplicaciones de Página Única (SPA)
+[[redirects]]
+  # Captura cualquier ruta que no coincida con un archivo existente
+  from = "/*"
+  
+  # Sirve el archivo principal de la aplicación para que React maneje la ruta
+  to = "/index.html"
+  
+  # Devuelve un estado 200 (OK) para que el navegador no vea una redirección
+  status = 200

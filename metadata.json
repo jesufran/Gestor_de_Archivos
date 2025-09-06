@@ -1,0 +1,5 @@
+{
+  "name": "Gestor-de-archivos-sin-credenciales",
+  "description": "Una aplicación elegante para gestionar documentos, tareas, seguimientos e informes con modos claro y oscuro.",
+  "requestFramePermissions": []
+}
