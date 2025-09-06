@@ -810,8 +810,15 @@ const App: React.FC = () => {
   };
   
   if (!user) {
-      return <LoginScreen onLogin={() => window.netlifyIdentity.open()} />
-  }
+    return <LoginScreen onLogin={() => {
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.open();
+      } else {
+        console.error('Netlify Identity widget not loaded.');
+        alert('El servicio de autenticación no se ha cargado. Por favor, recargue la página.');
+      }
+    }} />
+}
 
   if (!isLoaded) {
     return (
