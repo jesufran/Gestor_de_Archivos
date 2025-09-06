@@ -1,4 +1,4 @@
-echo "const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const files = [
@@ -13,7 +13,7 @@ const distDir = path.join(__dirname, '../dist');
 
 // Crear carpeta dist si no existe
 if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir);
+  fs.mkdirSync(distDir, { recursive: true });
 }
 
 // Copiar archivos
@@ -28,4 +28,4 @@ files.forEach(file => {
     console.error(`✗ Error copiando ${file}:`, err);
     process.exit(1);
   }
-});" > scripts\copy-static.js
+});
