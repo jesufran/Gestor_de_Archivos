@@ -1,5 +1,5 @@
 import type { Handler, HandlerContext } from "@netlify/functions";
-import { db } from './firebase-admin';
+import { db } from './firebase';
 
 const handler: Handler = async (event, context: HandlerContext) => {
   // Rechazar si no es un método POST
