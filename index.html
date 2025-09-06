@@ -6,9 +6,10 @@
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestor de Documentos y Tareas</title>
-    <link rel="manifest" href="/manifest.json" />
+    <!-- CORREGIDO: Quitada la barra inicial en manifest.json -->
+    <link rel="manifest" href="manifest.json" />
     
-    <!-- CORREGIDO: Ruta relativa SIN barra inicial para compatibilidad con Windows -->
+    <!-- CORREGIDO: Ruta relativa SIN barra inicial para compatibilidad con producción -->
     <link href="output.css" rel="stylesheet">
     
     <style>
@@ -16,9 +17,6 @@
         --color-primary-light: 243 89% 60%; /* Indigo 600 */
         --color-primary-dark: 236 89% 77%; /* Indigo 400 */
       }
-      
-      /* NOTA: Los colores personalizados se definen en tailwind.config.js, 
-         no en el navegador. Este CSS personalizado se mantiene para variables */
     </style>
     
     <script type="importmap">
@@ -32,7 +30,8 @@
         "idb": "https://aistudiocdn.com/idb@^8.0.3",
         "@google/genai": "https://aistudiocdn.com/@google/genai@^1.16.0",
         "@netlify/functions": "https://aistudiocdn.com/@netlify/functions@^4.2.5",
-        "firebase-admin": "https://aistudiocdn.com/firebase-admin@^13.5.0"
+        <!-- CORREGIDO: firebase-admin NO debe usarse en frontend -->
+        "firebase": "https://aistudiocdn.com/firebase@^12.2.1"
       }
     }
     </script>
@@ -41,14 +40,13 @@
     <div id="root"></div>
     <script type="module" src="bundle.js"></script>
     <script>
-      // Corrección para el tema oscuro/claro - debe aplicarse después de cargar los estilos
+      // Corrección para el tema oscuro/claro
       document.addEventListener('DOMContentLoaded', () => {
         const isDark = localStorage.getItem('darkMode') === 'true';
         if (isDark) {
           document.documentElement.classList.add('dark');
         }
         
-        // Escucha cambios en el tema
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
           if (localStorage.getItem('darkMode') === null) {
             document.documentElement.classList.toggle('dark', e.matches);
@@ -56,9 +54,10 @@
         });
       });
 
-      // Registro del Service Worker
+      // Registro del Service Worker - CORREGIDO: ruta sin barra inicial
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
+          // CORREGIDO: sw.js sin barra inicial
           navigator.serviceWorker.register('sw.js').then(registration => {
             console.log('SW registered: ', registration);
           }).catch(registrationError => {
