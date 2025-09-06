@@ -13,9 +13,10 @@
     "dev": "start cmd.exe /c \"npm run dev:css && exit\" & npm run dev:js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
+    "dependencies": {
     "@google/genai": "^1.16.0",
     "firebase": "^12.2.1",
+    "firebase-admin": "^12.2.0",
     "idb": "^8.0.0",
     "jszip": "^3.10.1",
     "mitt": "^3.0.1",
