@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import JSZip from 'jszip';
 import { Section, ThemeMode, Document, Task, OutgoingDocument, Folder, AccentColor, Toast, ToastType, AppUser } from './types';
 import { auth } from './firebaseClient';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut, getRedirectResult } from 'firebase/auth';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import ContentPlaceholder from './components/ContentPlaceholder';
@@ -137,6 +137,24 @@ const App: React.FC = () => {
     // Se desuscribe del listener al desmontar el componente para evitar fugas de memoria.
     return () => unsubscribe();
   }, [isLoaded]);
+
+  // Handle redirect result for Firebase Auth
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // User signed in via redirect
+          // onAuthStateChanged will handle setting the user state
+          addToast('¡Bienvenido! Has iniciado sesión correctamente.', 'success');
+        }
+      } catch (error: any) {
+        console.error("Error durante el inicio de sesión por redirección:", error);
+        addToast(`Error al iniciar sesión: ${error.message}. Por favor, inténtalo de nuevo.`, 'error');
+      }
+    };
+    handleRedirectResult();
+  }, []);
 
   
 
@@ -789,8 +807,8 @@ const App: React.FC = () => {
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      addToast('¡Bienvenido! Has iniciado sesión correctamente.', 'success');
+      await signInWithRedirect(auth, provider); // Changed to signInWithRedirect
+      // The redirect will handle the rest, no need for addToast here
     } catch (error) {
       console.error("Error durante el inicio de sesión:", error);
       addToast('Error al iniciar sesión. Por favor, inténtalo de nuevo.', 'error');
