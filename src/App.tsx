@@ -218,18 +218,18 @@ const App: React.FC = () => {
         }
 
         const hydratedDocuments = data.documents ? await Promise.all(data.documents.map(async (doc: any) => {
-            const file = doc.fileId ? await getFile(doc.fileId) : undefined;
-            const additionalFiles = doc.additionalFileIds ? await Promise.all(doc.additionalFileIds.map((id: string) => getFile(id))) : [];
+            const file = doc.fileId ? await getFile(user.uid, doc.fileId) : undefined;
+            const additionalFiles = doc.additionalFileIds ? await Promise.all(doc.additionalFileIds.map((id: string) => getFile(user.uid, id))) : [];
             return { ...doc, file, additionalFiles: additionalFiles.filter(f => f) };
         })) : [];
 
         const hydratedOutgoing = data.outgoingDocuments ? await Promise.all(data.outgoingDocuments.map(async (doc: any) => {
-            const file = doc.fileId ? await getFile(doc.fileId) : undefined;
+            const file = doc.fileId ? await getFile(user.uid, doc.fileId) : undefined;
             return { ...doc, file };
         })) : [];
 
         const hydratedTasks = data.tasks ? await Promise.all(data.tasks.map(async (task: any) => {
-            const resultFile = task.resultFileId ? await getFile(task.resultFileId) : undefined;
+            const resultFile = task.resultFileId ? await getFile(user.uid, task.resultFileId) : undefined;
             return { ...task, resultFile };
         })) : [];
         
@@ -276,20 +276,20 @@ const App: React.FC = () => {
         try {
             // 1. Save local files to IndexedDB
             for (const doc of documents) {
-                if (doc.file && doc.fileId) await saveFile(doc.fileId, doc.file);
+                if (doc.file && doc.fileId) await saveFile(user.uid, doc.fileId, doc.file);
                 if (doc.additionalFiles && doc.additionalFileIds) {
                     for (let i = 0; i < doc.additionalFiles.length; i++) {
                         if (doc.additionalFiles[i] && doc.additionalFileIds[i]) {
-                            await saveFile(doc.additionalFileIds[i], doc.additionalFiles[i]);
+                            await saveFile(user.uid, doc.additionalFileIds[i], doc.additionalFiles[i]);
                         }
                     }
                 }
             }
             for (const task of tasks) {
-                if (task.resultFile && task.resultFileId) await saveFile(task.resultFileId, task.resultFile);
+                if (task.resultFile && task.resultFileId) await saveFile(user.uid, task.resultFileId, task.resultFile);
             }
             for (const doc of outgoingDocuments) {
-                if (doc.file && doc.fileId) await saveFile(doc.fileId, doc.file);
+                if (doc.file && doc.fileId) await saveFile(user.uid, doc.fileId, doc.file);
             }
 
             const storableState = createStorableState(documents, tasks, outgoingDocuments, folderStructure);
@@ -556,7 +556,7 @@ const App: React.FC = () => {
                     const blob = await fileEntry.async("blob");
                     const file = new File([blob], doc.fileName, { type: blob.type });
                     doc.fileId = doc.fileId || `file-${crypto.randomUUID()}`;
-                    await saveFile(doc.fileId, file);
+                    await saveFile(user.uid, doc.fileId, file);
                     break; // Found it, move to next file
                 }
             }
@@ -579,7 +579,7 @@ const App: React.FC = () => {
                         const blob = await fileEntry.async("blob");
                         const file = new File([blob], fileName, { type: blob.type });
                         doc.additionalFileIds[i] = doc.additionalFileIds[i] || `file-${crypto.randomUUID()}`;
-                        await saveFile(doc.additionalFileIds[i], file);
+                        await saveFile(user.uid, doc.additionalFileIds[i], file);
                         break;
                     }
                 }
@@ -596,7 +596,7 @@ const App: React.FC = () => {
                     const blob = await fileEntry.async("blob");
                     const file = new File([blob], task.resultFileName, { type: blob.type });
                     task.resultFileId = task.resultFileId || `file-${crypto.randomUUID()}`;
-                    await saveFile(task.resultFileId, file);
+                    await saveFile(user.uid, task.resultFileId, file);
                 }
             }
         }
