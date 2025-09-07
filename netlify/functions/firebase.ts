@@ -18,3 +18,4 @@ if (!admin.apps.length) {
 
 // Exporta la instancia de Firestore para ser usada por otras funciones.
 export const db = admin.firestore();
+export { admin };
