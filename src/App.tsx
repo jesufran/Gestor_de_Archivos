@@ -270,7 +270,7 @@ const App: React.FC = () => {
 
   // Effect for saving data
   useEffect(() => {
-    if (!isLoaded || archiveViewYear || !appDataKey) return;
+    if (!isLoaded || archiveViewYear || !appDataKey || !user) return; // <--- Added || !user
     
     const saveData = async () => {
         try {
@@ -311,7 +311,7 @@ const App: React.FC = () => {
         }
     };
     saveData();
-  }, [documents, tasks, outgoingDocuments, folderStructure, isLoaded, archiveViewYear, appDataKey]);
+  }, [documents, tasks, outgoingDocuments, folderStructure, isLoaded, archiveViewYear, appDataKey, user]); // <--- Added user to dependency array
 
   const addToast = (message: string, type: ToastType = 'info') => {
     const id = `toast-${Date.now()}`;
