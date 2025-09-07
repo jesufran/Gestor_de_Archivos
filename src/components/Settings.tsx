@@ -9,9 +9,9 @@ import FileOrganizationSettings from './FileOrganizationSettings';
 import AppearanceSettings from './AppearanceSettings';
 import DataManagementSettings from './DataManagementSettings';
 import AnnualArchiveSettings from './AnnualArchiveSettings';
-import ProfileSettings from './ProfileSettings';
+import UserManagementSettings from './UserManagementSettings'; // Importar el nuevo componente
 
-type SettingsTab = 'profile' | 'appearance' | 'file-organization' | 'data-management' | 'annual-archive';
+type SettingsTab = 'profile' | 'appearance' | 'file-organization' | 'data-management' | 'annual-archive' | 'user-management';
 
 interface SettingsProps {
     user: NetlifyUser | null;
@@ -57,6 +57,8 @@ const Settings: React.FC<SettingsProps> = (props) => {
                     onArchiveYear={props.onArchiveYear}
                     onViewArchive={props.onViewArchive}
                 />;
+            case 'user-management':
+                return <UserManagementSettings user={props.user} />;
             default:
                 return null;
         }
@@ -92,6 +94,9 @@ const Settings: React.FC<SettingsProps> = (props) => {
                     <TabButton tabId="file-organization" title="Organización de Archivos" icon={<IconFolder className="w-5 h-5"/>} />
                     <TabButton tabId="data-management" title="Gestión de Datos" icon={<IconDatabase className="w-5 h-5"/>} />
                     <TabButton tabId="annual-archive" title="Archivo Anual" icon={<IconArchive className="w-5 h-5"/>} />
+                    {props.user?.email === 'esc.ambientalveracruz@gmail.com' && (
+                        <TabButton tabId="user-management" title="Gestión de Usuarios" icon={<IconUser className="w-5 h-5"/>} />
+                    )}
                 </nav>
             </aside>
             <main className="flex-1 bg-white dark:bg-secondary-dark/50 p-6 rounded-xl border border-border-light dark:border-border-dark">
