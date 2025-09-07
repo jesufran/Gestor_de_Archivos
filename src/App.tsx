@@ -1,26 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import JSZip from 'jszip';
-import { Section, ThemeMode, Document, Task, OutgoingDocument, Folder, AccentColor, Toast, ToastType, NetlifyUser } from './types';
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
-import ContentPlaceholder from './components/ContentPlaceholder';
-import Principal from './components/Principal';
-import TasksList from './components/TasksList';
-import OutgoingDocModal from './components/OutgoingDocModal';
-import OutgoingDocumentsList from './components/OutgoingDocumentsList';
-import IncomingDocumentsList from './components/IncomingDocumentsList';
-import WelcomeCard from './components/WelcomeCard';
-import AiAssistantPanel from './components/AiAssistantPanel';
-import Reports from './components/Reports';
-import Settings from './components/Settings';
-import GlobalSearchResults from './components/GlobalSearchResults';
-import NotificationsModal from './components/NotificationsModal';
-import ToastContainer from './components/ToastContainer';
-import ArchiveViewBanner from './components/ArchiveViewBanner';
-import { saveArchive, getArchive, listArchives, saveFile, getFile } from './db';
-import { IconLoader } from './components/icons/IconLoader';
-import LoginScreen from './components/LoginScreen';
-import BackupReminderBanner from './components/BackupReminderBanner';
+import { Section, ThemeMode, Document, Task, OutgoingDocument, Folder, AccentColor, Toast, ToastType, NetlifyUser } from '../types';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
+import ContentPlaceholder from '../components/ContentPlaceholder';
+import Principal from '../components/Principal';
+import TasksList from '../components/TasksList';
+import OutgoingDocModal from '../components/OutgoingDocModal';
+import OutgoingDocumentsList from '../components/OutgoingDocumentsList';
+import IncomingDocumentsList from '../components/IncomingDocumentsList';
+import WelcomeCard from '../components/WelcomeCard';
+import AiAssistantPanel from '../components/AiAssistantPanel';
+import Reports from '../components/Reports';
+import Settings from '../components/Settings';
+import GlobalSearchResults from '../components/GlobalSearchResults';
+import NotificationsModal from '../components/NotificationsModal';
+import ToastContainer from '../components/ToastContainer';
+import ArchiveViewBanner from '../components/ArchiveViewBanner';
+import { saveArchive, getArchive, listArchives, saveFile, getFile } from '../db';
+import { IconLoader } from '../components/icons/IconLoader';
+import LoginScreen from '../components/LoginScreen';
+import BackupReminderBanner from '../components/BackupReminderBanner';
 
 const sectionDescriptions: Record<Section, string> = {
   [Section.Principal]: "Empiece a gestionar sus documentos y tareas.",
