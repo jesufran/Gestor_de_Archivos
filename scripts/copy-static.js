@@ -10,6 +10,8 @@ const files = [
   'icon-512x512.png'
 ];
 
+const publicFiles = ['manifest.json', 'icon-192x192.png', 'icon-512x512.png', 'sw.js'];
+
 // Carpeta de destino
 const distDir = path.join(__dirname, '../dist');
 
@@ -20,7 +22,9 @@ if (!fs.existsSync(distDir)) {
 
 // Función para copiar archivos
 files.forEach(file => {
-  const src = path.join(__dirname, `../${file}`);
+  // Determina el directorio de origen basado en si el archivo está en la carpeta 'public'
+  const sourceDir = publicFiles.includes(file) ? '../public' : '..';
+  const src = path.join(__dirname, sourceDir, file);
   const dest = path.join(distDir, file);
 
   if (!fs.existsSync(src)) {
