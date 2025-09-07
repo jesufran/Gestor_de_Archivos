@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Folder, ThemeMode, AccentColor, NetlifyUser } from '../types';
+import { Folder, ThemeMode, AccentColor, AppUser } from '../types';
 import { IconUser } from './icons/IconUser';
 import { IconPalette } from './icons/IconPalette';
 import { IconFolder } from './icons/IconFolder';
@@ -14,7 +14,7 @@ import UserManagementSettings from './UserManagementSettings'; // Importar el nu
 type SettingsTab = 'profile' | 'appearance' | 'file-organization' | 'data-management' | 'annual-archive' | 'user-management';
 
 interface SettingsProps {
-    user: NetlifyUser | null;
+    user: AppUser | null;
     folders: Folder[];
     onAddFolder: (name: string, parentId: string | null) => void;
     onRenameFolder: (id: string, newName:string) => void;

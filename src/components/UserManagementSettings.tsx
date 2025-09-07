@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { NetlifyUser } from '../types';
+import { AppUser } from '../types';
 
 interface UserManagementSettingsProps {
-    user: NetlifyUser | null;
+    user: AppUser | null;
 }
 
 const UserManagementSettings: React.FC<UserManagementSettingsProps> = ({ user }) => {
@@ -18,7 +18,7 @@ const UserManagementSettings: React.FC<UserManagementSettingsProps> = ({ user })
         setSuccessMessage(null);
         setIsLoading(true);
 
-        if (!user?.token?.access_token) {
+        if (!user?.token) {
             setError('No se pudo obtener el token de autenticación. Por favor, recarga la página.');
             setIsLoading(false);
             return;
@@ -29,7 +29,7 @@ const UserManagementSettings: React.FC<UserManagementSettingsProps> = ({ user })
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token.access_token}`,
+                    'Authorization': `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({ email, password }),
             });

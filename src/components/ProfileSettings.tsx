@@ -1,11 +1,11 @@
 import React from 'react';
-import { NetlifyUser } from '../types';
+import { AppUser } from '../types';
 import { IconUser } from './icons/IconUser';
 import { IconMail } from './icons/IconMail';
 import { IconExternalLink } from './icons/IconExternalLink';
 
 interface ProfileSettingsProps {
-    user: NetlifyUser | null;
+    user: AppUser | null;
 }
 
 const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
@@ -33,7 +33,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                             <IconUser className="w-5 h-5 mr-3 text-text-secondary-light dark:text-text-secondary-dark" />
                             <div>
                                 <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Nombre Completo</p>
-                                <p className="font-semibold text-text-primary-light dark:text-text-primary-dark">{user.user_metadata?.full_name || 'No especificado'}</p>
+                                <p className="font-semibold text-text-primary-light dark:text-text-primary-dark">{user.displayName || 'No especificado'}</p>
                             </div>
                         </div>
                          <div className="flex items-center">

@@ -97,32 +97,12 @@ export interface Toast {
   type: ToastType;
 }
 
-// Tipado para el objeto de usuario de Netlify Identity
-export interface NetlifyUser {
-  id: string;
-  user_metadata: {
-    full_name?: string;
-  };
-  email: string;
-  token: {
-    access_token: string;
-  };
-}
+export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error';
 
-// Add Netlify Identity Widget types
-export interface NetlifyIdentity {
-    on: Emitter['on'];
-    off: Emitter['off'];
-    init: (options?: { container?: string | boolean }) => void;
-    open: (tabName?: 'login' | 'signup') => void;
-    close: () => void;
-    logout: () => Promise<void>;
-    currentUser: () => NetlifyUser | null;
-    gotrue: any;
-}
-
-declare global {
-    interface Window {
-        netlifyIdentity: NetlifyIdentity;
-    }
+// A simplified user object for our app's state, derived from Firebase's User object.
+export interface AppUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  token: string; // JWT para autenticar con el backend
 }

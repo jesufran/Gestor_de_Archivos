@@ -11,15 +11,31 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     };
   }
 
-  // 2. Verificar que el usuario sea el administrador
-  // Durante la transición, usamos el contexto de Netlify Identity
-  const { user } = context.clientContext;
+  // 2. Verificar que el usuario sea el administrador usando Firebase Auth
+  const { authorization } = event.headers;
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ error: "Acceso no autorizado: token ausente." }),
+    };
+  }
+
+  const idToken = authorization.split('Bearer ')[1];
   const adminEmail = "esc.ambientalveracruz@gmail.com";
 
-  if (!user || user.email !== adminEmail) {
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    if (decodedToken.email !== adminEmail) {
+      return {
+        statusCode: 403,
+        body: JSON.stringify({ error: "Acceso denegado: se requiere ser administrador." }),
+      };
+    }
+  } catch (error) {
+    console.error("Error verificando el token:", error);
     return {
       statusCode: 403,
-      body: JSON.stringify({ error: "Acceso denegado: se requiere ser administrador." }),
+      body: JSON.stringify({ error: "Token inválido o expirado." }),
     };
   }
 

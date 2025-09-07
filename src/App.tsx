@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import JSZip from 'jszip';
-import { Section, ThemeMode, Document, Task, OutgoingDocument, Folder, AccentColor, Toast, ToastType, NetlifyUser } from './types';
+import { Section, ThemeMode, Document, Task, OutgoingDocument, Folder, AccentColor, Toast, ToastType, AppUser } from './types';
+import { auth } from './firebaseClient';
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import ContentPlaceholder from './components/ContentPlaceholder';
@@ -49,7 +51,7 @@ interface SearchResult {
     section: Section;
 }
 
-export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error';
+
 
 const APP_DATA_KEY_PREFIX = 'gestorProData';
 const APP_SETTINGS_KEY = 'gestorProSettings';
@@ -79,21 +81,9 @@ const createStorableState = (documents: Document[], tasks: Task[], outgoingDocum
     };
 };
 
-// Helper to create a temporary user for demonstration purposes
-const createMockUser = (): NetlifyUser => ({
-  id: 'temp-user-01',
-  user_metadata: {
-    full_name: 'Usuario de Demostración',
-  },
-  email: 'demo@example.com',
-  token: {
-    access_token: 'mock-token-for-local-use',
-  },
-});
-
 const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [user, setUser] = useState<NetlifyUser | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
 
   // State initialization with defaults
   const [themeMode, setThemeMode] = useState<ThemeMode>('system');
@@ -118,29 +108,37 @@ const App: React.FC = () => {
   const [showBackupReminder, setShowBackupReminder] = useState(false);
   const syncTimeoutRef = useRef<number | null>(null);
   
-  const appDataKey = user ? `${APP_DATA_KEY_PREFIX}_${user.id}` : null;
+  const appDataKey = user ? `${APP_DATA_KEY_PREFIX}_${user.uid}` : null;
 
   useEffect(() => {
-    // To re-enable login, set this to true
-    const LOGIN_ENABLED = true;
-
-    if (LOGIN_ENABLED && window.netlifyIdentity) {
-      window.netlifyIdentity.on('init', (user) => {
-        setUser(user as NetlifyUser | null);
-      });
-      window.netlifyIdentity.on('login', (user) => {
-        setUser(user as NetlifyUser);
-        window.netlifyIdentity.close();
-      });
-      window.netlifyIdentity.on('logout', () => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // El usuario está autenticado. Obtenemos su token.
+        const token = await firebaseUser.getIdToken();
+        const appUser: AppUser = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          token: token,
+        };
+        setUser(appUser);
+      } else {
+        // El usuario no está autenticado.
         setUser(null);
         resetLocalData();
-      });
-      window.netlifyIdentity.init();
-    } else if (!LOGIN_ENABLED) {
-      setUser(createMockUser());
-    }
-  }, []);
+      }
+      // Marcamos la app como cargada solo después de la primera verificación
+      // para evitar parpadeos de la pantalla de login.
+      if (!isLoaded) {
+          setIsLoaded(true);
+      }
+    });
+
+    // Se desuscribe del listener al desmontar el componente para evitar fugas de memoria.
+    return () => unsubscribe();
+  }, [isLoaded]);
+
+  
 
   // Async data loading on startup
   useEffect(() => {
@@ -164,23 +162,12 @@ const App: React.FC = () => {
                 setShowBackupReminder(true); // Show if no backup has ever been made
             }
 
-            if (user && user.id !== 'temp-user-01') {
-              setSyncStatus('syncing');
-              addToast('Sincronizando datos desde la nube...', 'info');
-              const response = await fetch('/.netlify/functions/getFromFirestore', {
-                  headers: { Authorization: `Bearer ${user.token.access_token}` },
-              });
-              if (!response.ok) throw new Error('No se pudo obtener los datos de la nube.');
-              const cloudData = await response.json();
-              await loadData(cloudData, false);
-              setSyncStatus('synced');
-            } else {
-                // For mock user, just load local data
-                const dataStr = appDataKey ? localStorage.getItem(appDataKey) : null;
-                const localData = dataStr ? JSON.parse(dataStr) : undefined;
-                await loadData(localData, true);
-                setSyncStatus('idle');
-            }
+            // TODO: La carga de datos desde la nube se refactorizará en la Fase 3 con Firebase.
+            // Por ahora, se cargan los datos locales para que la app no falle.
+            const dataStr = appDataKey ? localStorage.getItem(appDataKey) : null;
+            const localData = dataStr ? JSON.parse(dataStr) : undefined;
+            await loadData(localData, true);
+            setSyncStatus('idle');
         } catch (e: any) {
             console.error("Error bootstrapping app:", e);
             addToast(`Error al conectar con la nube: ${e.message}. Cargando datos locales.`, 'error');
@@ -247,11 +234,11 @@ const App: React.FC = () => {
   };
 
   const syncToFirestore = async (state: any) => {
-    if (!user || user.id === 'temp-user-01') return;
+    if (!user || user.uid === 'temp-user-01') return;
     try {
         const response = await fetch('/.netlify/functions/syncToFirestore', {
             method: 'POST',
-            headers: { Authorization: `Bearer ${user.token.access_token}` },
+            headers: { Authorization: `Bearer ${user.token}` },
             body: JSON.stringify(state),
         });
         if (!response.ok) throw new Error('La respuesta del servidor no fue exitosa.');
@@ -740,7 +727,7 @@ const App: React.FC = () => {
     if (user) {
         const bootstrapApp = async () => {
             try {
-                if (user.id === 'temp-user-01') {
+                if (user.uid === 'temp-user-01') {
                     const dataStr = appDataKey ? localStorage.getItem(appDataKey) : null;
                     const localData = dataStr ? JSON.parse(dataStr) : undefined;
                     await loadData(localData, true);
@@ -748,7 +735,7 @@ const App: React.FC = () => {
                 } else {
                     setSyncStatus('syncing');
                     const response = await fetch('/.netlify/functions/getFromFirestore', {
-                        headers: { Authorization: `Bearer ${user.token.access_token}` },
+                        headers: { Authorization: `Bearer ${user.token}` },
                     });
                     if (!response.ok) throw new Error('No se pudo obtener los datos de la nube.');
                     const cloudData = await response.json();
@@ -799,25 +786,29 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-      if (user?.id === 'temp-user-01') {
-          addToast('El cierre de sesión está desactivado en el modo de demostración.', 'info');
-          return;
-      }
-      if (window.netlifyIdentity) {
-          window.netlifyIdentity.logout();
-      }
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      addToast('¡Bienvenido! Has iniciado sesión correctamente.', 'success');
+    } catch (error) {
+      console.error("Error durante el inicio de sesión:", error);
+      addToast('Error al iniciar sesión. Por favor, inténtalo de nuevo.', 'error');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      addToast('Has cerrado la sesión.', 'info');
+    } catch (error) {
+      console.error("Error durante el cierre de sesión:", error);
+      addToast('Error al cerrar sesión.', 'error');
+    }
   };
   
   if (!user) {
-    return <LoginScreen onLogin={() => {
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.open();
-      } else {
-        console.error('Netlify Identity widget not loaded.');
-        alert('El servicio de autenticación no se ha cargado. Por favor, recargue la página.');
-      }
-    }} />
+    return <LoginScreen onLogin={handleLogin} />
 }
 
   if (!isLoaded) {
