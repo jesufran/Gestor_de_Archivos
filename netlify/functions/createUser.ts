@@ -21,11 +21,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 
   const idToken = authorization.split('Bearer ')[1];
-  const adminEmail = "esc.ambientalveracruz@gmail.com";
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    if (decodedToken.email !== adminEmail) {
+    // Check for custom admin claim. This assumes 'isAdmin' is a custom claim set to true for administrators.
+    // This claim would need to be managed separately, e.g., via Firebase Admin SDK or a dedicated admin panel.
+    if (!decodedToken.isAdmin) {
       return {
         statusCode: 403,
         body: JSON.stringify({ error: "Acceso denegado: se requiere ser administrador." }),

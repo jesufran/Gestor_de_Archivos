@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import JSZip from 'jszip';
-import { Section, ThemeMode, Document, Task, OutgoingDocument, Folder, AccentColor, Toast, ToastType, AppUser } from './types';
+import { Section, ThemeMode, Document, Task, OutgoingDocument, Folder, AccentColor, Toast, ToastType, AppUser, SyncStatus } from './types';
 import { auth } from './firebaseClient';
 import { onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut, getRedirectResult } from 'firebase/auth';
 import Sidebar from './components/Sidebar';
@@ -111,9 +111,10 @@ const App: React.FC = () => {
   const appDataKey = user ? `${APP_DATA_KEY_PREFIX}_${user.uid}` : null;
 
   useEffect(() => {
+    // Set up the auth state listener
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // El usuario está autenticado. Obtenemos su token.
+        // User is signed in. Get their ID token.
         const token = await firebaseUser.getIdToken();
         const appUser: AppUser = {
           uid: firebaseUser.uid,
@@ -123,38 +124,36 @@ const App: React.FC = () => {
         };
         setUser(appUser);
       } else {
-        // El usuario no está autenticado.
+        // User is signed out.
         setUser(null);
         resetLocalData();
       }
-      // Marcamos la app como cargada solo después de la primera verificación
-      // para evitar parpadeos de la pantalla de login.
+      // Mark the app as loaded after the first auth state check to avoid login screen flicker.
       if (!isLoaded) {
           setIsLoaded(true);
       }
     });
 
-    // Se desuscribe del listener al desmontar el componente para evitar fugas de memoria.
-    return () => unsubscribe();
-  }, [isLoaded]);
-
-  // Handle redirect result for Firebase Auth
-  useEffect(() => {
+    // Handle redirect result for Firebase Auth
     const handleRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          // User signed in via redirect
-          // onAuthStateChanged will handle setting the user state
+          // User signed in via redirect. The onAuthStateChanged listener will handle setting the user state.
           addToast('¡Bienvenido! Has iniciado sesión correctamente.', 'success');
         }
       } catch (error: any) {
-        console.error("Error durante el inicio de sesión por redirección:", error);
+        console.error("Error during redirect sign-in:", error);
         addToast(`Error al iniciar sesión: ${error.message}. Por favor, inténtalo de nuevo.`, 'error');
       }
     };
+
+    // Call handleRedirectResult on mount.
     handleRedirectResult();
-  }, []);
+
+    // Unsubscribe from the listener when the component unmounts to prevent memory leaks.
+    return () => unsubscribe();
+  }, []); // Empty dependency array ensures this effect runs only once on mount.
 
   
 
